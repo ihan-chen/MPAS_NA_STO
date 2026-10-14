@@ -1082,11 +1082,11 @@ module atm_time_integration
       dynamics_substep = 1
 
 ! apply random perturbation pattern to the tendency
-      tend_names(1) = "rucuten"
-      tend_names(2) = "rvcuten"
-      tend_names(3) = "rublten"
-      tend_names(4) = "rvblten"
-      call stochastic_physics_pattern_apply(domain, 4, tend_names, ierr)
+!      tend_names(1) = "rucuten"
+!      tend_names(2) = "rvcuten"
+!      tend_names(3) = "rublten"
+!      tend_names(4) = "rvblten"
+!      call stochastic_physics_pattern_apply(domain, 4, tend_names, ierr)
 
       call physics_get_tend( block, mesh, state, diag, tend, tend_physics, &
                              block % configs, rk_step, dynamics_substep, &
@@ -1095,9 +1095,9 @@ module atm_time_integration
       call mpas_timer_stop('physics_get_tend')
 
 ! apply random perturbation pattern to the tendency
-      tend_names(1) = "tend_rtheta_physics"
+!      tend_names(1) = "tend_rtheta_physics"
 !      tend_names(2) = "tend_rho_physics"
-      call stochastic_physics_pattern_apply(domain, 1, tend_names, ierr)
+!      call stochastic_physics_pattern_apply(domain, 1, tend_names, ierr)
 #else
 #ifndef MPAS_CAM_DYCORE
       !

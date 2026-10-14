@@ -440,7 +440,7 @@
  end subroutine deallocate_pbl
 
 !=================================================================================================================
- subroutine pbl_from_MPAS(configs,mesh,sfc_input,diag_physics,tend_physics,its,ite)
+ subroutine pbl_from_MPAS(configs,mesh,sfc_input,diag_physics,tend_physics,its,ite,itimestep)
 !=================================================================================================================
 
 !input arguments:
@@ -479,6 +479,9 @@
  real(kind=RKIND),dimension(:),pointer   :: chlowq,thz0,qz0,uz0,vz0,ct,akhs,akms,lh,mixht
  real(kind=RKIND),dimension(:,:),pointer :: zgrid
  integer,dimension(:),pointer            :: lowlyr
+! initialize stochastic physics
+ real(kind=RKIND),dimension(:,:),pointer:: stoch_pat
+ integer,intent(in):: itimestep
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_pbl_scheme',pbl_scheme)
@@ -587,6 +590,7 @@
        call mpas_pool_get_array(diag_physics,'sub_qv'    ,sub_qv    )
        call mpas_pool_get_array(diag_physics,'det_thl'   ,det_thl   )
        call mpas_pool_get_array(diag_physics,'det_qv'    ,det_qv    )
+       call mpas_pool_get_array(tend_physics,'stoch_pattern_sppt',stoch_pat)
 
        do j = jts,jte
        do i = its,ite
@@ -635,7 +639,15 @@
           rnifablten_p(i,k,j) = 0._RKIND
           rnwfablten_p(i,k,j) = 0._RKIND
 
-          pattern_spp_pbl(i,k,j) = 0._RKIND
+          !pattern_spp_pbl(i,k,j) = 0._RKIND
+          !pattern_spp_pbl(i,k,j)=stoch_pat(k,i)
+
+          if (itimestep > 10) then
+           pattern_spp_pbl(i,k,j) =  stoch_pat(k,i) ! read-in sppt pattern
+          else
+           pattern_spp_pbl(i,k,j) = 0._RKIND
+          end if
+
        enddo
        enddo
        do i = its,ite
@@ -674,6 +686,7 @@
        call mpas_pool_get_array(diag_physics,'sub_qv'    ,sub_qv    )
        call mpas_pool_get_array(diag_physics,'det_thl'   ,det_thl   )
        call mpas_pool_get_array(diag_physics,'det_qv'    ,det_qv    )
+       call mpas_pool_get_array(tend_physics,'stoch_pattern',stoch_pat)
 
        do j = jts,jte
        do i = its,ite
@@ -720,7 +733,13 @@
           rnifablten_p(i,k,j) = 0._RKIND
           rnwfablten_p(i,k,j) = 0._RKIND
 
-          pattern_spp_pbl(i,k,j) = 0._RKIND
+          !pattern_spp_pbl(i,k,j) = 0._RKIND
+          !pattern_spp_pbl(i,k,j)=stoch_pat(k,i)
+          if (itimestep > 10) then
+           pattern_spp_pbl(i,k,j) =  stoch_pat(k,i) ! read-in sppt pattern
+          else
+           pattern_spp_pbl(i,k,j) = 0._RKIND
+          end if
        enddo
        enddo
        do i = its,ite
@@ -1242,7 +1261,7 @@
  call mpas_pool_get_config(configs,'config_pbl_scheme'  ,pbl_scheme         )
 
 !copy MPAS arrays to local arrays:
- call pbl_from_MPAS(configs,mesh,sfc_input,diag_physics,tend_physics,its,ite)
+ call pbl_from_MPAS(configs,mesh,sfc_input,diag_physics,tend_physics,its,ite,itimestep)
 
  initflag = 1
  if(config_do_restart .or. itimestep > 1) initflag = 0

@@ -462,6 +462,7 @@
     if(spp_pbl > 0 .and. present(pattern_spp)) then
        do k = kts,kte
           do i = its,ite
+             !print*, 'stochastic_physics=', spp_pbl, pattern_spp(i,k,j)
              pattern_spp_hv(i,k) = pattern_spp(i,k,j)
           enddo
        enddo
